@@ -1,0 +1,568 @@
+var url = window.location.href;
+var start_time = new Date();
+var _coin           = "doge",
+    _stop           = true,
+    _currentBalance = parseFloat($("#balance").val()).toFixed(8),
+    _profit         = 0,
+    _totalBet       = 0,
+    _betSpeed       = 0,
+    count_turn1     = 0,
+    count_turn2     = 0,
+    count_turn3     = 0,
+    count_turn4     = 0,
+    count_turn5     = 0,
+    count_turn6     = 0,
+    _diviceNum      = 2728320,
+    _baseBet        = (parseFloat($("#balance").val())/_diviceNum).toFixed(8),
+    _betAmount      = _baseBet,
+    _lastResult     = "",
+    _lastStatus     = "false",
+    turn            = 0,
+    _prediction     = 11,
+    _direction      = "over",
+    _clientSeed     = "e2863526a6fec3ffe4bde6a1d0c5260e",
+    _serverSeedHash = "",
+    _countClick     = 0,
+    _betSide        = prompt('Bet side (hi/low/random)', 'hi');
+    _hash           = user.hash;//url.substring(url.indexOf("=") + 1, url.length);
+function changeSeed() {
+    _clientSeed = "";
+    var charset = "abcdef0123456789";
+    var _array = new Uint32Array(32);
+    window.crypto.getRandomValues(_array);
+    for (var i = 0; i < 32; i++){
+        _clientSeed += charset.charAt(_array[i]%10);
+    }
+}
+function updatePara(responseText){
+    var _result = JSON.parse(responseText);
+    var _lastProfit = _result.profit;
+    _serverSeedHash     = _result.serverHash;
+    _currentBalance     = _result.balance;
+    _lastResult         = _result.gameResult;
+    _lastStatus         = _result.result;
+    if(_lastStatus == "true" || _lastStatus == true)
+        _profit         += parseFloat(_lastProfit);
+}
+function createHackerType(){
+    var para_hacker_right = document.createElement("canvas"),
+        para_hacker_left = document.createElement("canvas");
+    para_hacker_right.setAttribute("id", "c_right");
+    para_hacker_right.style.float = "right";
+    para_hacker_right.style.position = "relative";
+
+    para_hacker_left.setAttribute("id", "c_left");
+    para_hacker_left.style.float = "left";
+    para_hacker_left.style.position = "relative";
+    document.body.appendChild(para_hacker_left);
+    document.body.appendChild(para_hacker_right);
+}
+function createStatisticElement(){
+    var para = document.createElement("div");
+    para.setAttribute("id", "dicebot");
+    para.style.color = "#0F0";
+    document.body.appendChild(para);
+
+    para = document.createElement("div");
+    para.setAttribute("id", "title");
+    para.appendChild(document.createTextNode("DICEBOT 6 TURN RUN HI"));
+    para.style.color = "red";
+    para.style.textAlign = "center";
+    para.style.fontSize = "40px";
+    var elemt = document.getElementById("dicebot");
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(para);
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(document.createElement("br"));
+
+    
+    var x = document.createElement("TABLE");
+    x.style.textAlign = "left";
+    x.setAttribute("vertical-align", "bottom");
+    x.setAttribute("id", "myTable");
+    x.setAttribute("width", "30%");
+    x.setAttribute("height", "300px");
+    x.setAttribute("align", "center");
+    x.setAttribute("border-collapse", "collapse");
+    x.style.fontSize = "20px";
+    elemt.appendChild(x);
+
+    var y = document.createElement("TR");
+    y.setAttribute("id", "myTr1");
+    document.getElementById("myTable").appendChild(y);
+
+    var z = document.createElement("TD");
+    z.appendChild(document.createTextNode("Last Result"));
+    document.getElementById("myTr1").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "_lastResult");
+    z.appendChild(document.createTextNode(_lastResult));
+    document.getElementById("myTr1").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr2");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("Current Balace"));
+    document.getElementById("myTr2").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "_currentBalance");
+    z.appendChild(document.createTextNode(_currentBalance));
+    document.getElementById("myTr2").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr3");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("Profit"));
+    document.getElementById("myTr3").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "_profit");
+    z.appendChild(document.createTextNode(_profit));
+    document.getElementById("myTr3").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr4");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("Current Turn"));
+    document.getElementById("myTr4").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "turn");
+    z.appendChild(document.createTextNode(turn));
+    document.getElementById("myTr4").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr5");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("count_turn1"));
+    document.getElementById("myTr5").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "count_turn1");
+    z.appendChild(document.createTextNode(count_turn1));
+    document.getElementById("myTr5").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr6");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("count_turn2"));
+    document.getElementById("myTr6").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "count_turn2");
+    z.appendChild(document.createTextNode(count_turn2));
+    document.getElementById("myTr6").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr7");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("count_turn3"));
+    document.getElementById("myTr7").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "count_turn3");
+    z.appendChild(document.createTextNode(count_turn3));
+    document.getElementById("myTr7").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr8");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("count_turn4"));
+    document.getElementById("myTr8").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "count_turn4");
+    z.appendChild(document.createTextNode(count_turn4));
+    document.getElementById("myTr8").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr9");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("count_turn5"));
+    document.getElementById("myTr9").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "count_turn5");
+    z.appendChild(document.createTextNode(count_turn5));
+    document.getElementById("myTr9").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr10");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("count_turn6"));
+    document.getElementById("myTr10").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "count_turn6");
+    z.appendChild(document.createTextNode(count_turn6));
+    document.getElementById("myTr10").appendChild(z);
+    
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr11");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("bet speed"));
+    document.getElementById("myTr11").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "_betSpeed");
+    z.appendChild(document.createTextNode(_betSpeed));
+    document.getElementById("myTr11").appendChild(z);
+
+    y = document.createElement("TR");
+    y.setAttribute("id", "myTr12");
+    document.getElementById("myTable").appendChild(y);
+    z = document.createElement("TD");
+    z.appendChild(document.createTextNode("playing_time"));
+    document.getElementById("myTr12").appendChild(z);
+    z = document.createElement("TD");
+    z.setAttribute("id", "_playingTime");
+    z.appendChild(document.createTextNode(""));
+    document.getElementById("myTr12").appendChild(z);
+
+    para = document.createElement("a");
+    para.setAttribute("id", "0");
+    para.appendChild(document.createTextNode("Profit 30% new account Ref linK: < https://luckygames.io/?track_id=241171630 > Thanks!"));
+    para.style.color = "blue";
+    para.style.textAlign = "center";
+    para.style.fontSize = "30px";
+    var elemt = document.getElementById("title");
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(para);
+
+    para = document.createElement("div");
+    para.setAttribute("id", "dicebot_status");
+    para.appendChild(document.createTextNode("DICEBOT status:"));
+    para.style.color = "#0F0";
+    para.style.textAlign = "left";
+    para.style.fontSize = "15px";
+    var elemt = document.getElementById("dicebot");
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(para);
+    document.getElementById("dicebot_status").style.marginLeft = "600px";
+
+    para = document.createElement("p");
+    para.setAttribute("id", "bot_log");
+    para.appendChild(document.createTextNode(""));
+    para.style.color = "#0F0";
+    para.style.textAlign = "left";
+    para.style.marginLeft = "20px";
+    para.style.fontSize = "13px";
+    var elemt = document.getElementById("dicebot");
+    elemt.appendChild(para);
+    document.getElementById("bot_log").style.marginLeft = "600px";
+    $("#bot_log")[0].innerText = "[log] DICEBOT is waiting for command\n....";
+
+    elemt.appendChild(document.createElement("br"));
+    elemt.appendChild(document.createElement("br"));
+
+    var btn = document.createElement("BUTTON");
+    btn.appendChild(document.createTextNode("START"));
+    btn.style.backgroundColor = "#1ab188";
+    btn.style.border = "none";
+    btn.style.color = "white";
+    btn.style.padding = "20px";
+    btn.style.textAlign  = "center";
+    btn.style.display = "inline-block";
+    btn.style.textDecoration = "none";
+    btn.style.fontSize = "16px";
+    btn.style.margin = "4px 2px";
+    btn.style.cursor = "pointer";
+    btn.style.width  = "20%";
+    btn.style.align = "left";
+    btn.setAttribute("id","startAuto");
+    btn.setAttribute("onclick","startBOT();");
+    btn.style.marginLeft = "10px";
+    btn.style.marginTop  = "70px";
+    btn.style.position = "absolute";
+    elemt.appendChild(btn);
+    
+
+    btn = document.createElement("BUTTON")
+    btn.appendChild(document.createTextNode("STOP"));
+    btn.style.backgroundColor = "red";
+    btn.style.border = "none";
+    btn.style.color = "white";
+    btn.style.padding = "20px";
+    btn.style.textAlign  = "left";
+    btn.style.display = "inline-block";
+    btn.style.textDecoration = "none";
+    btn.style.fontSize = "16px";
+    btn.style.margin = "4px 2px";
+    btn.style.cursor = "pointer";
+    btn.style.width  = "20%";
+    btn.style.marginLeft = "1450px";
+    btn.style.marginTop  = "70px";
+    btn.style.position = "absolute";
+    btn.setAttribute("id","stopAuto");
+    btn.setAttribute("onclick","stopBOT()");
+    elemt.appendChild(btn);
+}
+function startBOT(){
+    _countClick++;
+    _stop=false;
+    sendBet();
+    var str = $("#bot_log")[0].innerText;
+    if(_countClick > 2){
+        var lines = str.split('\n');
+        lines.splice(0,1);
+        str = lines.join('\n');
+    }
+    str += "\n[Log] DICEBOT is started.";
+    $("#bot_log")[0].innerText = str;
+}
+function stopBOT(){
+    _countClick++;
+    _stop=true;
+    var str = $("#bot_log")[0].innerText;
+    if(_countClick > 2){
+        var lines = str.split('\n');
+        lines.splice(0,1);
+        str = lines.join('\n');
+    }
+    str += "\n[Log] DICEBOT is stopped.";
+    $("#bot_log")[0].innerText = str;
+    //document.getElementById("bot_log").appendChild(document.createTextNode("<br>[Log] DICEBOT is stopped!\n"));
+}
+    function hacker_type(){
+        var c = document.getElementById("c_left"),
+            c2 = document.getElementById("c_right");
+        var ctx = c.getContext("2d"),
+            ctx2 = c2.getContext("2d")
+        c.height = 870;
+        c2.height = 870;
+        c.width = 550; //window.innerWidth;
+        c2.width = 557;
+        var chinese = "1234567890";
+        chinese = chinese.split("");
+        var font_size = 10;
+        var columns = c.width/font_size; //number of columns for the rain
+        //an array of drops - one per column
+        var drops = [],
+            drops2 = [];
+        for(var x = 0; x < columns; x++){
+            drops[x] = 1; 
+            drops2[x] = 1;
+        }
+
+        //drawing the characters
+        function draw(){
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx2.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, c.width, c.height);
+            ctx2.fillRect(0, 0, c2.width, c2.height);
+            
+            ctx.fillStyle = "#0F0"; //green text
+            ctx2.fillStyle = "#0F0"; //green text
+            ctx.font = font_size + "px arial";
+            ctx2.font = font_size + "px arial";
+            for(var i = 0; i < drops.length; i++)
+            {
+                var text = chinese[Math.floor(Math.random()*chinese.length)];
+                ctx.fillText(text, i*font_size, drops[i]*font_size);
+                if(drops[i]*font_size > c.height && Math.random() > 0.975)
+                    drops[i] = 0;
+                drops[i]++;
+            }
+            for(var i = 0; i < drops2.length; i++)
+            {
+                var text = chinese[Math.floor(Math.random()*chinese.length)];
+                ctx2.fillText(text, i*font_size, drops2[i]*font_size);
+                if(drops2[i]*font_size > c2.height && Math.random() > 0.975)
+                    drops2[i] = 0;
+                drops2[i]++;
+            }
+        }
+        setInterval(draw, 55);
+    }
+function statistic(){
+    var current_time = new Date();
+    var playing_time = current_time - start_time;
+    var playing_hours = Math.floor((playing_time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); 
+    var playing_mins = Math.floor((playing_time % (1000 * 60 * 60)) / (1000 * 60));
+    var playing_secs = Math.floor((playing_time % (1000 * 60)) / 1000);
+    _betSpeed = parseFloat((_totalBet/playing_time)*1000).toFixed(2);
+    $("#_lastResult")[0].innerText= _lastResult;
+    $("#_currentBalance")[0].innerText= _currentBalance;
+    $("#_profit")[0].innerText= parseFloat(_profit).toFixed(8);
+    $("#turn")[0].innerText= turn;
+    $("#count_turn1")[0].innerText= count_turn1;
+    $("#count_turn2")[0].innerText= count_turn2;
+    $("#count_turn3")[0].innerText= count_turn3;
+    $("#count_turn4")[0].innerText= count_turn4;
+    $("#count_turn5")[0].innerText= count_turn5;
+    $("#count_turn6")[0].innerText= count_turn6;
+    $("#_betSpeed")[0].innerText= _betSpeed + " bet/s";
+    $("#_playingTime")[0].innerText     = playing_hours + ":" + playing_mins + ":" + playing_secs;
+}
+function setPrediction(){
+    if(_betSide == "random"){
+        var _array = new Uint32Array(5);
+        window.crypto.getRandomValues(_array);
+        var x = _array[3];
+        if(x % 2 == 0){
+            _prediction = 89;
+            _direction = "under";
+        }
+        else{
+            _prediction = 11;
+            _direction = "over";
+        }
+    }
+    if (_betSide == "low"){
+        _prediction = 89;
+        _direction = "under";
+    }
+    if (_betSide == "hi"){
+        _prediction = 11;
+        _direction = "over";
+    }
+}
+function sendBet(){
+    changeSeed();
+    setPrediction();
+    if(_stop == false)
+    $.ajax({
+                type: "POST",
+                url: "https://luckygames.io/ajx/",
+                cache: false,
+                data: {
+                    game:               "dice",
+                    coin:               _coin,
+                    betAmount:          _betAmount,
+                    prediction:         _prediction,
+                    direction:          _direction,
+                    clientSeed:         _clientSeed,
+                    serverSeedHash:     _serverSeedHash,
+                    action:             "playBet",
+                    hash:               _hash,
+                },
+                success: function(text) {
+                    updatePara(text);
+                    if(_lastStatus == "false" || _lastStatus == false){
+                        console.log("failed! Trying again....");
+                        setTimeout(sendBet(), 1000);
+                    }
+                    else{
+                        _totalBet++;
+                        if(_lastResult.toLocaleLowerCase() === "win"){
+                            if(_betAmount >= 9*_baseBet && _betAmount < 15*_baseBet)
+                                count_turn1++;
+                            if(_betAmount >= 190*_baseBet && _betAmount < 250*_baseBet)
+                                count_turn2++;
+                            if(_betAmount >= 1900*_baseBet && _betAmount <= 2500*_baseBet)
+                                count_turn3++;
+                            if(_betAmount >= 19000*_baseBet && _betAmount <= 25000*_baseBet)
+                                count_turn4++;
+                            if(_betAmount >= 190000*_baseBet && _betAmount <= 250000*_baseBet)
+                                count_turn5++;
+                            if(_betAmount >= 1900000*_baseBet && _betAmount <= 2500000*_baseBet)
+                                count_turn6++;
+
+                            if((turn == 0 && _betAmount >= 9*_baseBet) || (turn >= 1 && turn <=2 && _betAmount >= 190*_baseBet))
+                                turn = 0;
+                            if(turn == 3 && _betAmount >= 1900*_baseBet)
+                                turn -= 2;
+                            if(turn == 4 && _betAmount >= 19000*_baseBet)
+                                turn -= 2;
+                            if(turn == 5 && _betAmount >= 190000*_baseBet)
+                                turn -=2;
+                            if(turn == 6 && _betAmount >= 1900000*_baseBet)
+                                turn -=2;
+                            if(turn == 0)
+                                _baseBet = parseFloat(_currentBalance / _diviceNum).toFixed(8);
+                            if(_baseBet < 0.0000001)
+                                _baseBet = 0.0000001;
+                            _betAmount = _baseBet;
+                        }
+                        if(_lastResult.toLocaleLowerCase() === "lose"){
+                            if(_betAmount > 9* _baseBet && _betAmount < 11*_baseBet)
+                                turn++;
+
+                            if(turn==0 && _betAmount > 0.9 * _baseBet && _betAmount < 1.1*_baseBet){
+                                _betAmount=10 * _baseBet;
+                            }
+                            else
+                            if(turn == 1 && _betAmount > 9* _baseBet && _betAmount < 15*_baseBet){
+                                _betAmount = 1*_baseBet;
+                            }
+                            else
+                            if(turn == 1 && _betAmount > 0.9 * _baseBet && _betAmount < 1.1*_baseBet){
+                                _betAmount=10*_baseBet;
+                            }
+                            else
+                            if(turn == 2 && _betAmount > 9* _baseBet && _betAmount < 11*_baseBet){
+                                _betAmount=221*_baseBet;
+                            }
+                            else
+                            if(turn == 2 && _betAmount>190*_baseBet && _betAmount < 250*_baseBet){
+                                _betAmount = 1*_baseBet;
+                            }
+                            else
+                            if(turn == 2 && _betAmount > 0.9 * _baseBet && _betAmount < 1.1*_baseBet){
+                                _betAmount=10*_baseBet;
+                            }
+                            else
+                            if(turn == 3 && _betAmount > 9* _baseBet && _betAmount < 11*_baseBet){
+                                _betAmount = 2431*_baseBet;
+                            }
+                            else
+                            if(turn == 3 && _betAmount>1900*_baseBet && _betAmount < 2500*_baseBet)
+                                _betAmount=1*_baseBet;
+                            else
+                            if(turn == 3 && _betAmount > 0.9 * _baseBet && _betAmount < 1.1*_baseBet)
+                                _betAmount=10*_baseBet;
+                            else
+                            if(turn == 4 && _betAmount > 9* _baseBet && _betAmount < 11*_baseBet)
+                                _betAmount=24531*_baseBet;
+                            else
+                            if(turn == 4 && _betAmount>19000*_baseBet && _betAmount < 25000*_baseBet)
+                                _betAmount=1*_baseBet;
+                            else
+                            if(turn == 4 && _betAmount > 0.9 * _baseBet && _betAmount < 1.1*_baseBet)
+                                _betAmount=10*_baseBet;
+                            else
+                            if(turn == 5 && _betAmount > 9* _baseBet && _betAmount < 11*_baseBet)
+                                _betAmount=245531*_baseBet;
+                            else
+                            if(turn == 5 && _betAmount>190000*_baseBet && _betAmount < 250000*_baseBet)
+                                _betAmount=1*_baseBet;
+                            else
+                            if(turn == 5 && _betAmount > 0.9 * _baseBet && _betAmount < 1.1*_baseBet)
+                                _betAmount=10*_baseBet;
+                            else
+                            if(turn == 6 && _betAmount > 9* _baseBet && _betAmount < 11*_baseBet)
+                                _betAmount=2455531*_baseBet;
+                            else
+                            if(turn == 6 && _betAmount>1900000*_baseBet && _betAmount < 2500000*_baseBet){
+                                _betAmount=_baseBet;
+                                alert("SML!!!!");
+                            }
+                        }
+                        statistic();
+			sendBet();
+                    }
+                },
+                error:function (xhr, ajaxOptions, thrownError) {
+                    sendBet();
+                },
+                timeout:function (xhr, ajaxOptions, thrownError) {
+                    sendBet();
+                },
+                abort:function (xhr, ajaxOptions, thrownError) {
+                    sendBet();
+                }
+            });    
+}
+//sendBet();
+$("#body").remove();
+$("#sidebar").remove();
+$("#intercom-container").remove();
+$("#intercom-frame").remove();
+$("body > div.popup-bg.popup-close").remove();
+//createHackerType();
+//hacker_type();
+createStatisticElement();
